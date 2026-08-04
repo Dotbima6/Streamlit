@@ -12,8 +12,14 @@ st.set_page_config(
     layout="centered"
 )
 
+st.image("assets/logo.png", width=120)
+
 st.title("🍇 Deteksi Penyakit Daun Anggur")
-st.write("Upload gambar daun anggur untuk melakukan prediksi penyakit menggunakan MobileNetV2.")
+
+st.markdown("""
+Aplikasi ini menggunakan model **MobileNetV2**
+untuk mengidentifikasi penyakit pada daun anggur.
+""")
 
 # ==========================
 # Nama kelas
@@ -26,10 +32,16 @@ with open("labels.txt", "r") as f:
 # ==========================
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model("best_model.h5")
-    return model
+    try:
+        model = tf.keras.models.load_model("best_model.h5")
+        return model
+    except Exception as e:
+        st.error(f"Gagal memuat model: {e}")
+        st.stop()
 
 model = load_model()
+
+
 
 # ==========================
 # Preprocessing
@@ -67,7 +79,8 @@ if uploaded_file is not None:
 
         input_image = preprocess_image(image)
 
-        prediction = model.predict(input_image)
+        with st.spinner("Sedang melakukan prediksi..."):
+    prediction = model.predict(input_image, verbose=0)
 
         predicted_class = np.argmax(prediction)
 
@@ -79,5 +92,15 @@ if uploaded_file is not None:
 
         st.subheader("Probabilitas")
 
+        st.subheader("Probabilitas Tiap Kelas")
+
         for i, cls in enumerate(CLASS_NAMES):
-            st.write(f"{cls} : {prediction[0][i]*100:.2f}%")
+            prob = float(prediction[0][i])
+            st.write(f"{cls} : {prob*100:.2f}%")
+            st.progress(prob)
+
+st.markdown("---")
+st.caption(
+    "Deteksi Penyakit Daun Anggur menggunakan MobileNetV2 | "
+    "Universitas Dian Nuswantoro"
+)
