@@ -18,12 +18,8 @@ st.write("Upload gambar daun anggur untuk melakukan prediksi penyakit menggunaka
 # ==========================
 # Nama kelas
 # ==========================
-CLASS_NAMES = [
-    "Black Measles",
-    "Black Rot",
-    "Healthy",
-    "Leaf Blight"
-]
+with open("labels.txt", "r") as f:
+    CLASS_NAMES = [line.strip() for line in f.readlines()]
 
 # ==========================
 # Load Model
